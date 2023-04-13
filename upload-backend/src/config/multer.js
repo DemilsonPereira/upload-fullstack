@@ -1,18 +1,37 @@
 import multer from "multer";
 import crypto from "crypto";
 import path from "path";
+import aws from '@aws-sdk/client-s3';
+import multerS3 from 'multer-s3';
 import { fileURLToPath } from 'url';
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default {
-    dest: path.resolve(__dirname, '..', '..', 'tmp', 'uploads'),
-    storage: multer.diskStorage({
+
+const storageTypes = {
+    local: multer.diskStorage({
         destination: (request, file, cb) => {
             cb(null, path.resolve(__dirname, '..', '..', 'tmp', 'uploads'));
         },
         filename: (request, file, cb) => {
+            crypto.randomBytes(16, (err, hash) => {
+                if (err) cb(err);
+
+                file.key = `${hash.toString('hex')}-${file.originalname}`;
+
+                cb(null, file.key);
+            });
+        }
+    }),
+    s3: multerS3({
+        s3: new aws.S3(),
+        bucket: 'upload-fullstack',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
+        acl: 'public-read',
+        key: (request, file, cb) => {
             crypto.randomBytes(16, (err, hash) => {
                 if (err) cb(err);
 
@@ -21,7 +40,12 @@ export default {
                 cb(null, fileName);
             });
         }
-    }),
+    })
+}
+
+export default {
+    dest: path.resolve(__dirname, '..', '..', 'tmp', 'uploads'),
+    storage: storageTypes['s3'],
     limits: {
         fileSize: 2 * 1024 * 1024,
     },
