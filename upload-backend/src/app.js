@@ -1,11 +1,16 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import path from "path";
+import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import * as dotenv from "dotenv";
 dotenv.config();
 
 import { router } from './routes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class App {
     constructor() {
@@ -22,6 +27,7 @@ class App {
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
         this.app.use(cors());
+        this.app.use("/files", express.static(path.resolve(__dirname, "..", "tmp", "uploads")));
         this.app.use(morgan('dev'));
         mongoose.connect(
             `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URI}/`,

@@ -1,22 +1,15 @@
 import { Router } from "express";
 import multer from "multer";
 import multerConfig from "./config/multer.js";
-import Post from "./models/Post.js";
+import { PostController } from "./controllers/Post-controller.js";
 
 const router = Router();
 
+const postController = new PostController();
 
-router.post('/posts', multer(multerConfig).single('file'), async (request, response) => {
-    const { originalname: name, size, key, location: url = '' } = request.file;
-
-    const post = await Post.create({
-        name,
-        size,
-        key,
-        url
-    })
-    return response.json(post);
-});
+router.get('/posts', postController.index);
+router.post('/posts', multer(multerConfig).single('file'), postController.create);
+router.delete('/posts/:id', postController.delete);
 
 export {
     router

@@ -28,7 +28,7 @@ const storageTypes = {
     }),
     s3: multerS3({
         s3: new aws.S3(),
-        bucket: 'upload-fullstack',
+        bucket: process.env.S3_BUCKET,
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         key: (request, file, cb) => {
@@ -45,7 +45,7 @@ const storageTypes = {
 
 export default {
     dest: path.resolve(__dirname, '..', '..', 'tmp', 'uploads'),
-    storage: storageTypes['s3'],
+    storage: storageTypes[process.env.STORAGE_TYPE],
     limits: {
         fileSize: 2 * 1024 * 1024,
     },
