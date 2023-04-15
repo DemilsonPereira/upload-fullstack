@@ -9,12 +9,13 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const tmpFolder = path.resolve(__dirname, '..', '..', 'tmp', 'uploads');
 
 
 const storageTypes = {
     local: multer.diskStorage({
         destination: (request, file, cb) => {
-            cb(null, path.resolve(__dirname, '..', '..', 'tmp', 'uploads'));
+            cb(null, tmpFolder);
         },
         filename: (request, file, cb) => {
             crypto.randomBytes(16, (err, hash) => {
@@ -44,7 +45,7 @@ const storageTypes = {
 }
 
 export default {
-    dest: path.resolve(__dirname, '..', '..', 'tmp', 'uploads'),
+    dest: path.resolve(__dirname, tmpFolder),
     storage: storageTypes[process.env.STORAGE_TYPE],
     limits: {
         fileSize: 2 * 1024 * 1024,

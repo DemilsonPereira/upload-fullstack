@@ -11,6 +11,7 @@ const s3 = new aws.S3();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const tmpFolder = path.resolve(__dirname, '..', '..', 'tmp', 'uploads');
 
 const PostSchema = new mongoose.Schema({
     name: String,
@@ -34,10 +35,10 @@ PostSchema.pre('remove', function () {
         return s3.deleteObject({
             Bucket: process.env.S3_BUCKET,
             Key: this.key,
-        }).promise()
+        }).promise();
     } else {
         return promisify(fs.unlink)(
-            path.resolve(__dirname, '..', '..', 'tmp', 'uploads', this.key)
+            path.resolve(__dirname, tmpFolder, this.key)
         );
     }
 });
