@@ -2,4 +2,6 @@
 
 /database
 
+tmp/uploads/*
+
 .env
